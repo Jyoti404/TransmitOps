@@ -21,6 +21,11 @@ export const roiHandler = asyncHandler(async (_req: Request, res: Response) => {
   res.json(await reportsService.getRoiReport());
 });
 
+export const monthlyRevenueHandler = asyncHandler(async (req: Request, res: Response) => {
+  const months = req.query.months ? Number(req.query.months) : 6;
+  res.json(await reportsService.getMonthlyRevenueReport(months));
+});
+
 type CsvRow = Record<string, unknown>;
 
 const EXPORTABLE_REPORTS: Record<string, () => Promise<CsvRow[]>> = {

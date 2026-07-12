@@ -205,3 +205,14 @@ model DailyKpiSnapshot {
 
   @@map("daily_kpi_snapshots")
 }
+
+// Singleton row (id is always 1) — org-wide display preferences, not business rules.
+model AppSettings {
+  id           Int      @id @default(1)
+  depotName    String   @default("Main Depot")
+  currency     String   @default("INR")
+  distanceUnit String   @default("KM")
+  updatedAt    DateTime @updatedAt
+
+  @@map("app_settings")
+}

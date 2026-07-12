@@ -15,6 +15,8 @@ import { dashboardRouter } from './modules/dashboard/routes';
 import './modules/dashboard/cacheInvalidation';
 import { internalRouter } from './modules/internal/routes';
 import { reportsRouter } from './modules/reports/routes';
+import { settingsRouter } from './modules/settings/routes';
+import { geocodeRouter } from './modules/geocode/routes';
 
 export function createApp() {
   const app = express();
@@ -37,6 +39,8 @@ export function createApp() {
   app.use('/api/dashboard', dashboardRouter);
   app.use('/api/internal', internalRouter);
   app.use('/api/reports', reportsRouter);
+  app.use('/api/settings', settingsRouter);
+  app.use('/api/geocode', geocodeRouter);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

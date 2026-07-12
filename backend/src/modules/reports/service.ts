@@ -156,3 +156,29 @@ export async function getRoiReport(): Promise<RoiReportRow[]> {
     };
   });
 }
+
+export interface MonthlyRevenueRow {
+  month: string; // "YYYY-MM"
+  revenue: number;
+}
+
+interface MonthlyRevenueRaw {
+  month: Date;
+  revenue: string | null;
+}
+
+export async function getMonthlyRevenueReport(months = 6): Promise<MonthlyRevenueRow[]> {
+  // Prisma's query builder can't group by a truncated date, so this one goes raw.
+  const rows = await prisma.$queryRaw<MonthlyRevenueRaw[]>`
+    SELECT date_trunc('month', "completedAt") AS month, SUM(revenue) AS revenue
+    FROM trips
+    WHERE status = 'COMPLETED' AND "completedAt" IS NOT NULL
+    GROUP BY month
+    ORDER BY month ASC
+  `;
+
+  return rows.slice(-months).map((row) => ({
+    month: row.month.toISOString().slice(0, 7),
+    revenue: Number(row.revenue ?? 0),
+  }));
+}

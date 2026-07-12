@@ -1,7 +1,14 @@
 import { Router } from 'express';
 import { RoleName } from '@prisma/client';
 import { requireAuth, requireRole } from '../../common/middleware/auth';
-import { costHandler, exportReportHandler, fuelEfficiencyHandler, roiHandler, utilizationHandler } from './controller';
+import {
+  costHandler,
+  exportReportHandler,
+  fuelEfficiencyHandler,
+  monthlyRevenueHandler,
+  roiHandler,
+  utilizationHandler,
+} from './controller';
 
 export const reportsRouter = Router();
 
@@ -60,6 +67,22 @@ reportsRouter.get('/cost', costHandler);
  *         description: ROI per vehicle
  */
 reportsRouter.get('/roi', roiHandler);
+
+/**
+ * @openapi
+ * /reports/monthly-revenue:
+ *   get:
+ *     tags: [Reports]
+ *     summary: Revenue from completed trips, grouped by month
+ *     parameters:
+ *       - in: query
+ *         name: months
+ *         schema: { type: integer, default: 6 }
+ *     responses:
+ *       200:
+ *         description: Monthly revenue, oldest first
+ */
+reportsRouter.get('/monthly-revenue', monthlyRevenueHandler);
 
 /**
  * @openapi
