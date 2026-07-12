@@ -5,6 +5,7 @@ import { Select } from '../atoms/Select';
 import { TripTable } from '../components/trips/TripTable';
 import { TripFormModal } from '../components/trips/TripFormModal';
 import { CompleteTripModal } from '../components/trips/CompleteTripModal';
+import { LiveBoard } from '../components/trips/LiveBoard';
 import { useCancelTrip, useDispatchTrip, useTrips } from '../hooks/useTrips';
 import { Trip, TripFilters, TripStatus } from '../api/trips';
 import { extractErrorMessage } from '../api/client';
@@ -60,35 +61,45 @@ export function Trips() {
         {canManageLifecycle && <Button onClick={() => setIsFormOpen(true)}>New trip</Button>}
       </div>
 
-      <Card className="mb-4 flex flex-wrap gap-3 p-4">
-        <div className="w-44">
-          <Select
-            value={filters.status ?? ''}
-            onChange={(e) => setFilters({ ...filters, status: (e.target.value || undefined) as TripStatus | undefined })}
-          >
-            <option value="">All statuses</option>
-            {STATUS_OPTIONS.map((status) => (
-              <option key={status} value={status}>
-                {status}
-              </option>
-            ))}
-          </Select>
-        </div>
-      </Card>
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <Card className="mb-4 flex flex-wrap gap-3 p-4">
+            <div className="w-44">
+              <Select
+                value={filters.status ?? ''}
+                onChange={(e) =>
+                  setFilters({ ...filters, status: (e.target.value || undefined) as TripStatus | undefined })
+                }
+              >
+                <option value="">All statuses</option>
+                {STATUS_OPTIONS.map((status) => (
+                  <option key={status} value={status}>
+                    {status}
+                  </option>
+                ))}
+              </Select>
+            </div>
+          </Card>
 
-      <Card className="overflow-x-auto p-2">
-        <TripTable
-          trips={trips}
-          isLoading={isLoading}
-          canManageLifecycle={canManageLifecycle}
-          canCancel={canCancel}
-          onDispatch={handleDispatch}
-          onComplete={setCompleteTarget}
-          onCancel={handleCancel}
-          rowError={rowError}
-          pendingTripId={pendingTripId}
-        />
-      </Card>
+          <Card className="overflow-x-auto p-2">
+            <TripTable
+              trips={trips}
+              isLoading={isLoading}
+              canManageLifecycle={canManageLifecycle}
+              canCancel={canCancel}
+              onDispatch={handleDispatch}
+              onComplete={setCompleteTarget}
+              onCancel={handleCancel}
+              rowError={rowError}
+              pendingTripId={pendingTripId}
+            />
+          </Card>
+        </div>
+
+        <div className="lg:col-span-1">
+          <LiveBoard />
+        </div>
+      </div>
 
       <TripFormModal isOpen={isFormOpen} onClose={() => setIsFormOpen(false)} />
       <CompleteTripModal trip={completeTarget} onClose={() => setCompleteTarget(null)} />

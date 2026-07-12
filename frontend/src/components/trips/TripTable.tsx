@@ -1,7 +1,6 @@
 import { Trip } from '../../api/trips';
-import { Badge } from '../../atoms/Badge';
 import { Button } from '../../atoms/Button';
-import { TRIP_STATUS_TONE } from '../../utils/statusTone';
+import { TripLifecycleStepper } from './TripLifecycleStepper';
 
 interface RowError {
   tripId: string;
@@ -20,7 +19,7 @@ interface TripTableProps {
   pendingTripId: string | null;
 }
 
-const COLUMNS = ['Route', 'Vehicle', 'Driver', 'Cargo (kg)', 'Status', 'Actions'];
+const COLUMNS = ['Route', 'Vehicle', 'Driver', 'Cargo (kg)', 'Progress', 'Actions'];
 
 export function TripTable({
   trips,
@@ -70,8 +69,8 @@ export function TripTable({
               <td className="whitespace-nowrap px-3 py-2 text-slate-600">{trip.vehicle?.registrationNumber ?? trip.vehicleId}</td>
               <td className="whitespace-nowrap px-3 py-2 text-slate-600">{trip.driver?.fullName ?? trip.driverId}</td>
               <td className="whitespace-nowrap px-3 py-2 text-slate-600">{Number(trip.cargoWeightKg)}</td>
-              <td className="whitespace-nowrap px-3 py-2">
-                <Badge tone={TRIP_STATUS_TONE[trip.status]}>{trip.status}</Badge>
+              <td className="px-3 py-2">
+                <TripLifecycleStepper status={trip.status} dispatchedAt={trip.dispatchedAt} />
               </td>
               <td className="whitespace-nowrap px-3 py-2">
                 <div className="flex gap-2">
