@@ -1,0 +1,40 @@
+import axios from 'axios';
+import { useAuthStore } from '../store/authStore';
+
+export const apiClient = axios.create({
+  baseURL: '/api',
+});
+
+apiClient.interceptors.request.use((config) => {
+  const token = useAuthStore.getState().token;
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      useAuthStore.getState().logout();
+      if (window.location.pathname !== '/login') {
+        window.location.assign('/login');
+      }
+    }
+    return Promise.reject(error);
+  },
+);
+
+export interface ApiErrorBody {
+  error: { code: string; message: string; details?: { path: string; message: string }[] };
+}
+
+export function extractErrorMessage(err: unknown): string {
+  if (axios.isAxiosError(err)) {
+    const body = err.response?.data as ApiErrorBody | undefined;
+    if (body?.error?.message) return body.error.message;
+    return err.message;
+  }
+  return 'Something went wrong';
+}
