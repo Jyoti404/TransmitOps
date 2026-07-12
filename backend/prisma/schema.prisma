@@ -1,0 +1,207 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum RoleName {
+  FLEET_MANAGER
+  DRIVER
+  SAFETY_OFFICER
+  FINANCIAL_ANALYST
+}
+
+enum VehicleStatus {
+  AVAILABLE
+  ON_TRIP
+  IN_SHOP
+  RETIRED
+}
+
+enum DriverStatus {
+  AVAILABLE
+  ON_TRIP
+  OFF_DUTY
+  SUSPENDED
+}
+
+enum TripStatus {
+  DRAFT
+  DISPATCHED
+  COMPLETED
+  CANCELLED
+}
+
+enum MaintenanceStatus {
+  OPEN
+  CLOSED
+}
+
+model User {
+  id           String     @id @default(uuid())
+  email        String     @unique
+  passwordHash String
+  fullName     String
+  role         RoleName
+  isActive     Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+
+  tripsCreated Trip[]     @relation("TripCreatedBy")
+  auditLogs    AuditLog[]
+
+  @@map("users")
+}
+
+model Vehicle {
+  id                 String        @id @default(uuid())
+  registrationNumber String        @unique
+  nameModel          String
+  type               String
+  maxLoadCapacityKg  Decimal       @db.Decimal(10, 2)
+  odometerKm         Decimal       @default(0) @db.Decimal(12, 2)
+  acquisitionCost    Decimal       @db.Decimal(14, 2)
+  region             String?
+  status             VehicleStatus @default(AVAILABLE)
+  version            Int           @default(0)
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  trips           Trip[]
+  maintenanceLogs MaintenanceLog[]
+  fuelLogs        FuelLog[]
+  expenses        Expense[]
+
+  @@index([status])
+  @@map("vehicles")
+}
+
+model Driver {
+  id                String       @id @default(uuid())
+  fullName          String
+  licenseNumber     String       @unique
+  licenseCategory   String
+  licenseExpiryDate DateTime
+  contactNumber     String?
+  email             String?
+  safetyScore       Decimal      @default(100) @db.Decimal(4, 1)
+  status            DriverStatus @default(AVAILABLE)
+  version           Int          @default(0)
+  createdAt         DateTime     @default(now())
+
+  trips         Trip[]
+  notifications Notification[]
+
+  @@index([status])
+  @@index([licenseExpiryDate])
+  @@map("drivers")
+}
+
+model Trip {
+  id                 String     @id @default(uuid())
+  source             String
+  destination        String
+  vehicleId          String
+  vehicle            Vehicle    @relation(fields: [vehicleId], references: [id])
+  driverId           String
+  driver             Driver     @relation(fields: [driverId], references: [id])
+  cargoWeightKg      Decimal    @db.Decimal(10, 2)
+  plannedDistanceKm  Decimal    @db.Decimal(10, 2)
+  actualDistanceKm   Decimal?   @db.Decimal(10, 2)
+  fuelConsumedLiters Decimal?   @db.Decimal(10, 2)
+  revenue            Decimal    @default(0) @db.Decimal(14, 2)
+  status             TripStatus @default(DRAFT)
+  dispatchedAt       DateTime?
+  completedAt        DateTime?
+  createdById        String
+  createdBy          User       @relation("TripCreatedBy", fields: [createdById], references: [id])
+  createdAt          DateTime   @default(now())
+
+  fuelLogs FuelLog[]
+  expenses Expense[]
+
+  @@index([status])
+  @@map("trips")
+}
+
+model MaintenanceLog {
+  id          String            @id @default(uuid())
+  vehicleId   String
+  vehicle     Vehicle           @relation(fields: [vehicleId], references: [id])
+  description String
+  cost        Decimal           @default(0) @db.Decimal(14, 2)
+  status      MaintenanceStatus @default(OPEN)
+  openedAt    DateTime          @default(now())
+  closedAt    DateTime?
+
+  @@index([status])
+  @@map("maintenance_logs")
+}
+
+model FuelLog {
+  id         String   @id @default(uuid())
+  vehicleId  String
+  vehicle    Vehicle  @relation(fields: [vehicleId], references: [id])
+  tripId     String?
+  trip       Trip?    @relation(fields: [tripId], references: [id])
+  liters     Decimal  @db.Decimal(10, 2)
+  cost       Decimal  @db.Decimal(14, 2)
+  loggedDate DateTime @default(now())
+
+  @@map("fuel_logs")
+}
+
+model Expense {
+  id          String   @id @default(uuid())
+  vehicleId   String?
+  vehicle     Vehicle? @relation(fields: [vehicleId], references: [id])
+  tripId      String?
+  trip        Trip?    @relation(fields: [tripId], references: [id])
+  category    String
+  amount      Decimal  @db.Decimal(14, 2)
+  expenseDate DateTime @default(now())
+
+  @@map("expenses")
+}
+
+model AuditLog {
+  id          BigInt   @id @default(autoincrement())
+  actorUserId String?
+  actor       User?    @relation(fields: [actorUserId], references: [id])
+  entityType  String
+  entityId    String
+  action      String
+  beforeState Json?
+  afterState  Json?
+  createdAt   DateTime @default(now())
+
+  @@map("audit_logs")
+}
+
+model Notification {
+  id       BigInt   @id @default(autoincrement())
+  driverId String
+  driver   Driver   @relation(fields: [driverId], references: [id])
+  type     String
+  sentOn   DateTime @default(now()) @db.Date
+
+  @@unique([driverId, type, sentOn])
+  @@map("notifications")
+}
+
+model DailyKpiSnapshot {
+  id                BigInt   @id @default(autoincrement())
+  snapshotDate      DateTime @unique @db.Date
+  activeVehicles    Int
+  availableVehicles Int
+  inShopVehicles    Int
+  activeTrips       Int
+  pendingTrips      Int
+  driversOnDuty     Int
+  utilizationPct    Decimal  @db.Decimal(5, 2)
+  createdAt         DateTime @default(now())
+
+  @@map("daily_kpi_snapshots")
+}
