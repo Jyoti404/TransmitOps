@@ -1,9 +1,13 @@
 import cors from 'cors';
 import express from 'express';
 import helmet from 'helmet';
+import swaggerUi from 'swagger-ui-express';
 import { env } from './config/env';
+import { swaggerSpec } from './config/swagger';
 import { errorHandler, notFoundHandler } from './common/errorHandler';
 import { authRouter } from './modules/auth/routes';
+import { vehicleRouter } from './modules/vehicle/routes';
+import { driverRouter } from './modules/driver/routes';
 
 export function createApp() {
   const app = express();
@@ -14,7 +18,11 @@ export function createApp() {
 
   app.get('/health', (_req, res) => res.json({ status: 'ok', time: new Date().toISOString() }));
 
+  app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
   app.use('/api/auth', authRouter);
+  app.use('/api/vehicles', vehicleRouter);
+  app.use('/api/drivers', driverRouter);
 
   app.use(notFoundHandler);
   app.use(errorHandler);
