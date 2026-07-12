@@ -8,6 +8,7 @@ import { errorHandler, notFoundHandler } from './common/errorHandler';
 import { authRouter } from './modules/auth/routes';
 import { vehicleRouter } from './modules/vehicle/routes';
 import { driverRouter } from './modules/driver/routes';
+import { tripRouter } from './modules/trip/routes';
 
 export function createApp() {
   const app = express();
@@ -23,6 +24,7 @@ export function createApp() {
   app.use('/api/auth', authRouter);
   app.use('/api/vehicles', vehicleRouter);
   app.use('/api/drivers', driverRouter);
+  app.use('/api/trips', tripRouter);
 
   app.use(notFoundHandler);
   app.use(errorHandler);
