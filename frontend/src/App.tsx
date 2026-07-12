@@ -3,7 +3,11 @@ import { Login } from './pages/Login';
 import { Vehicles } from './pages/Vehicles';
 import { Drivers } from './pages/Drivers';
 import { Trips } from './pages/Trips';
-import { Placeholder } from './pages/Placeholder';
+import { Maintenance } from './pages/Maintenance';
+import { FuelExpenses } from './pages/FuelExpenses';
+import { Dashboard } from './pages/Dashboard';
+import { Reports } from './pages/Reports';
+import { Settings } from './pages/Settings';
 import { AppShell } from './components/AppShell';
 import { ProtectedRoute } from './routes/ProtectedRoute';
 
@@ -14,13 +18,14 @@ export function App() {
 
       <Route element={<ProtectedRoute />}>
         <Route element={<AppShell />}>
-          <Route path="/dashboard" element={<Placeholder title="Dashboard" />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/vehicles" element={<Vehicles />} />
           <Route path="/drivers" element={<Drivers />} />
           <Route path="/trips" element={<Trips />} />
-          <Route path="/maintenance" element={<Placeholder title="Maintenance" />} />
-          <Route path="/fuel-expenses" element={<Placeholder title="Fuel & Expenses" />} />
-          <Route path="/reports" element={<Placeholder title="Reports" />} />
+          <Route path="/maintenance" element={<Maintenance />} />
+          <Route path="/fuel-expenses" element={<FuelExpenses />} />
+          <Route path="/reports" element={<Reports />} />
+          <Route path="/settings" element={<Settings />} />
         </Route>
       </Route>
 

@@ -4,6 +4,7 @@ import { Label } from '../../atoms/Label';
 import { Input } from '../../atoms/Input';
 import { Select } from '../../atoms/Select';
 import { Button } from '../../atoms/Button';
+import { LocationAutocomplete } from '../common/LocationAutocomplete';
 import { extractErrorMessage } from '../../api/client';
 import { useCreateTrip } from '../../hooks/useTrips';
 import { useAvailableVehicles } from '../../hooks/useVehicles';
@@ -56,22 +57,22 @@ export function TripFormModal({ isOpen, onClose }: TripFormModalProps) {
         <div className="grid grid-cols-2 gap-3">
           <div>
             <Label htmlFor="source">Source</Label>
-            <Input
+            <LocationAutocomplete
               id="source"
               required
               value={form.source}
-              onChange={(e) => setForm({ ...form, source: e.target.value })}
-              placeholder="Warehouse"
+              onChange={(value) => setForm({ ...form, source: value })}
+              placeholder="Start typing an address…"
             />
           </div>
           <div>
             <Label htmlFor="destination">Destination</Label>
-            <Input
+            <LocationAutocomplete
               id="destination"
               required
               value={form.destination}
-              onChange={(e) => setForm({ ...form, destination: e.target.value })}
-              placeholder="Client Site"
+              onChange={(value) => setForm({ ...form, destination: value })}
+              placeholder="Start typing an address…"
             />
           </div>
         </div>

@@ -11,6 +11,8 @@ interface RowError {
 interface TripTableProps {
   trips: Trip[];
   isLoading: boolean;
+  canManageLifecycle: boolean; // Dispatch/Complete are Driver-only per backend RBAC
+  canCancel: boolean; // Cancel is Driver + Fleet Manager per backend RBAC
   onDispatch: (trip: Trip) => void;
   onComplete: (trip: Trip) => void;
   onCancel: (trip: Trip) => void;
@@ -20,7 +22,17 @@ interface TripTableProps {
 
 const COLUMNS = ['Route', 'Vehicle', 'Driver', 'Cargo (kg)', 'Status', 'Actions'];
 
-export function TripTable({ trips, isLoading, onDispatch, onComplete, onCancel, rowError, pendingTripId }: TripTableProps) {
+export function TripTable({
+  trips,
+  isLoading,
+  canManageLifecycle,
+  canCancel,
+  onDispatch,
+  onComplete,
+  onCancel,
+  rowError,
+  pendingTripId,
+}: TripTableProps) {
   if (isLoading) {
     return <p className="py-8 text-center text-sm text-slate-500">Loading trips…</p>;
   }
@@ -43,9 +55,9 @@ export function TripTable({ trips, isLoading, onDispatch, onComplete, onCancel, 
       <tbody className="divide-y divide-slate-100">
         {trips.map((trip) => {
           const isPending = pendingTripId === trip.id;
-          const canDispatch = trip.status === 'DRAFT';
-          const canComplete = trip.status === 'DISPATCHED';
-          const canCancel = trip.status === 'DRAFT' || trip.status === 'DISPATCHED';
+          const showDispatch = canManageLifecycle && trip.status === 'DRAFT';
+          const showComplete = canManageLifecycle && trip.status === 'DISPATCHED';
+          const showCancel = canCancel && (trip.status === 'DRAFT' || trip.status === 'DISPATCHED');
 
           return (
             <tr key={trip.id}>
@@ -63,17 +75,17 @@ export function TripTable({ trips, isLoading, onDispatch, onComplete, onCancel, 
               </td>
               <td className="whitespace-nowrap px-3 py-2">
                 <div className="flex gap-2">
-                  {canDispatch && (
+                  {showDispatch && (
                     <Button className="px-2 py-1 text-xs" disabled={isPending} onClick={() => onDispatch(trip)}>
                       Dispatch
                     </Button>
                   )}
-                  {canComplete && (
+                  {showComplete && (
                     <Button className="px-2 py-1 text-xs" disabled={isPending} onClick={() => onComplete(trip)}>
                       Complete
                     </Button>
                   )}
-                  {canCancel && (
+                  {showCancel && (
                     <Button
                       variant="danger"
                       className="px-2 py-1 text-xs"
