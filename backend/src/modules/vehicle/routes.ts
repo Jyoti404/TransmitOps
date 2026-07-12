@@ -7,6 +7,7 @@ import {
   listVehiclesHandler,
   updateVehicleHandler,
 } from './controller';
+import { vehicleCostSummaryHandler } from '../fuelExpense/controller';
 
 export const vehicleRouter = Router();
 
@@ -95,3 +96,22 @@ vehicleRouter.post('/', requireRole(RoleName.FLEET_MANAGER), createVehicleHandle
  *         description: Vehicle not found
  */
 vehicleRouter.put('/:id', requireRole(RoleName.FLEET_MANAGER), updateVehicleHandler);
+
+/**
+ * @openapi
+ * /vehicles/{id}/cost-summary:
+ *   get:
+ *     tags: [Vehicles]
+ *     summary: Rolled-up operational cost for a vehicle (fuel + maintenance + expenses)
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: Cost summary
+ *       404:
+ *         description: Vehicle not found
+ */
+vehicleRouter.get('/:id/cost-summary', vehicleCostSummaryHandler);
