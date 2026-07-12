@@ -17,6 +17,8 @@ export const env = {
     host: process.env.SMTP_HOST ?? 'localhost',
     port: Number(process.env.SMTP_PORT ?? 1025),
     from: process.env.SMTP_FROM ?? 'TransitOps <noreply@transitops.local>',
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
   },
   corsOrigin: process.env.CORS_ORIGIN ?? 'http://localhost:5173',
 };
